@@ -1,0 +1,6 @@
+env
+.idea
+data
+__pycache__
+.DS_Store
+src/tools/.DS_Store
