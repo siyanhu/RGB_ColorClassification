@@ -11,7 +11,6 @@ import cv2
 from PIL import Image
 
 import tools.file_io as fio
-import color_histogram_feature_extraction as chfe
 
 
 cam_name = 'Cam72'
@@ -46,9 +45,25 @@ def get_rgb_midpoint(image, i, j):
     return pixel
 
 def get_rgb_histfeature(image_path):
-    source_image = cv2.imread(image_path)
-    te = chfe.color_histogram_of_test_image(source_image)
-    print(te)
+    image = cv2.imread(image_path)
+    chans = cv2.split(image)
+    colors = ('b', 'g', 'r')
+    features = []
+    counter = 0
+    for (chan, color) in zip(chans, colors):
+        counter = counter + 1
+        hist = cv2.calcHist([chan], [0], None, [256], [0, 256])
+        features.extend(hist)
+        # find the peak pixel values for R, G, and B
+        elem = np.argmax(hist)
+        if counter == 1:
+            blue = elem
+        elif counter == 2:
+            green = elem
+        elif counter == 3:
+            red = elem
+    rslt = (red, green, blue)
+    return rslt
 
 
 def get_rgb_histogram(image):
@@ -61,8 +76,8 @@ def get_rgb_histogram(image):
 
 
 def get_rgb(image_path, image, i, j):
-    get_rgb_histfeature(image_path)
-    return get_rgb_histogram(image)
+    return get_rgb_histfeature(image_path)
+    #   return get_rgb_histogram(image)
     #   return get_rgb_midpoint(image, i, j)
 
 
