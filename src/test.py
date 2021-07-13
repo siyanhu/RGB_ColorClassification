@@ -14,7 +14,7 @@ import tools.file_io as fio
 
 
 cam_name = 'Cam72'
-time_mark = '20210713_1'
+time_mark = '20210713_2'
 test_dir_list = [fio.proj_dir, fio.test_dir, cam_name]
 test_dir = fio.createPath(fio.sep, test_dir_list)
 
@@ -28,7 +28,8 @@ img_paths = fio.traverse_dir(test_dir, full_path=True)
 save_dir_list = [fio.proj_dir, fio.pred_dir, time_mark]
 
 
-model = tf.keras.models.load_model('clsf_model.h5')
+#model = tf.keras.models.load_model('clsf_model.h5')
+model = tf.keras.models.load_model('clsf_model-500.hdf5')
 
 
 def find_highest_freq_element_from_list(list_value):
@@ -111,7 +112,7 @@ for i in range(len(img_paths)):
     ts = img_info[0]
     ptid = img_info[1]
     input_rgb = output_color_vector(path, 5, 5)
-    color_class_confidence = model.predict(input_rgb)  # Output of layer is in terms of Confidence of the 11 classes
+    color_class_confidence = model.predict_proba(input_rgb)  # Output of layer is in terms of Confidence of the 11 classes
     if len(color_class_confidence) < 0:
         continue
     confidence_list = color_class_confidence[0]

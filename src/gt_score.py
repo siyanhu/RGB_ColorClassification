@@ -3,7 +3,7 @@ import tools.file_io as fio
 import pandas as pd
 
 cam_name = 'Cam72'
-time_mark = '20210713_1'
+time_mark = '20210713_2'
 csv_dir = [fio.proj_dir, fio.pred_dir, time_mark]
 file_name = 'Cam72.csv'
 score_path = fio.createPath(fio.sep, csv_dir, file_name)

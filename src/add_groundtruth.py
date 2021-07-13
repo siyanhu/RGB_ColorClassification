@@ -4,7 +4,7 @@ import pandas as pd
 
 
 cam_name = 'Cam72'
-time_mark = '20210713_1'
+time_mark = '20210713_2'
 csv_list = [fio.proj_dir, fio.pred_dir, time_mark]
 csv_dir = fio.createPath(fio.sep, csv_list)
 csv_paths = fio.traverse_dir(csv_dir, full_path=True)

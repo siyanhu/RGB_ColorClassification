@@ -4,3 +4,5 @@ data
 __pycache__
 .DS_Store
 src/tools/.DS_Store
+*.h5
+*.hdf5

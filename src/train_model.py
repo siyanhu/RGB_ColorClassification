@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from keras import regularizers
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras import regularizers
 print(tf.__version__)
 
 import tensorflow_docs as tfdocs
@@ -9,11 +10,24 @@ import tensorflow_docs.plots
 import tensorflow_docs.modeling
 
 import pandas as pd
+import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 from tools import file_io as fio
+
+# class NBatchLogger(Callback):
+#     def __init__(self, display):
+#         self.seen = 0
+#         self.display = display
+#
+#     def on_batch_end(self, batch, logs={}):
+#         self.seen += logs.get('size', 0)
+#         if self.seen % self.display == 0:
+#             # you can access loss, accuracy in self.params['metrics']
+#             print(self.params)
+#             print('\n{}/{} - loss ....\n'.format(self.seen, self.params['samples']))
 
 
 rgb_dir_list = [fio.proj_dir, fio.train_dir]
@@ -72,7 +86,7 @@ model = keras.Sequential([
     layers.Dense(24, kernel_regularizer=regularizers.l2(0.001), activation='relu'),
     layers.Dense(24, kernel_regularizer=regularizers.l2(0.001), activation='relu'),
     layers.Dense(16, kernel_regularizer=regularizers.l2(0.001), activation='relu'),
-    layers.Dense(2)
+    layers.Dense(2, activation='softmax')
   ])
 
 optimizer = keras.optimizers.Adam(learning_rate=0.001)
@@ -81,15 +95,27 @@ model.compile(loss=loss_function, optimizer=optimizer, metrics=['accuracy'])
 print('Model Summary: ')
 model.summary()
 
+
+filepath = "clsf_model-{epoch:02d}.hdf5"
+checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=0, save_best_only=False, mode='max', period=500)
+#logger = NBatchLogger(display=1000)
+#checkpoint = MidSaver(500)
+callback_list = [checkpoint, tfdocs.modeling.EpochDots()]
+
+
 history = model.fit(x=train_dataset, y=train_labels,
                     validation_split=0.2,
                     epochs=5001,
                     batch_size=2048,
-                    verbose=0,
-                    callbacks=[tfdocs.modeling.EpochDots()],
+                    callbacks=callback_list,
                     shuffle=True)
 
 hist = pd.DataFrame(history.history)
+save_dir_list = [fio.proj_dir]
+save_name = 'clsf_mode_params.csv'
+save_path = fio.createPath(fio.sep, save_dir_list, save_name)
+fio.save_df_to_csv(hist, save_path, write_header=True)
+
 hist['epoch'] = history.epoch
 hist.tail()
 
@@ -102,4 +128,6 @@ plotter.plot({'Basic': history}, metric = "loss")
 plt.ylim([0, 1])
 plt.ylabel('loss [Color]')
 
-model.save('clsf_model.h5')
+save_name = 'clsf_model.h5'
+save_path = fio.createPath(fio.sep, save_dir_list, save_name)
+model.save(save_path)
