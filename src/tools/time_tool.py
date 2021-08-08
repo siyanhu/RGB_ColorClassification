@@ -63,4 +63,10 @@ def timestr_to_timestamp(tm_format, tm_str):
 
 
 def current_timestamp(return_value_string=True):
-    return ''
+    t = int(round(time.time() * 1000))
+    if return_value_string:
+        return str(t)
+    return t
+
+
+

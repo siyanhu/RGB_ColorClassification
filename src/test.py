@@ -11,10 +11,11 @@ import cv2
 from PIL import Image
 
 import tools.file_io as fio
+from tools import time_tool as ttol
 
 
 cam_name = 'Cam72'
-time_mark = '20210713_2'
+time_mark = '20210714_1'
 test_dir_list = [fio.proj_dir, fio.test_dir, cam_name]
 test_dir = fio.createPath(fio.sep, test_dir_list)
 
@@ -28,8 +29,8 @@ img_paths = fio.traverse_dir(test_dir, full_path=True)
 save_dir_list = [fio.proj_dir, fio.pred_dir, time_mark]
 
 
-#model = tf.keras.models.load_model('clsf_model.h5')
-model = tf.keras.models.load_model('clsf_model-500.hdf5')
+model = tf.keras.models.load_model('clsf_model_1.h5')
+#model = tf.keras.models.load_model('clsf_model-500.hdf5')
 
 
 def find_highest_freq_element_from_list(list_value):
@@ -105,6 +106,7 @@ save_rslt = list()
 for i in range(len(img_paths)):
     #   label_white = 1
     #   label_black = 2
+    before_timer = ttol.current_timestamp(False)
     path = img_paths[i]
     img_info = get_img_info(path)
     if len(img_info) < 2:
@@ -125,7 +127,9 @@ for i in range(len(img_paths)):
     if white_conf > black_conf:
         pred_rslt = '2'
         pred_conf = white_conf
-    save_rslt.append({'Timestamp': ts, 'Patch': ptid, 'Prediction': pred_rslt, 'confidence': pred_conf})
+    after_timer = ttol.current_timestamp(False)
+    duration = after_timer - before_timer
+    save_rslt.append({'Timestamp': ts, 'Patch': ptid, 'Prediction': pred_rslt, 'confidence': pred_conf, 'runtime': duration})
     if (i % 500 == 0) and (i > 0):
         pred_df = pd.DataFrame(save_rslt)
         csv_name = cam_name + '_' + time_mark + '_' + str(i) + '.csv'
